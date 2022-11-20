@@ -1,9 +1,9 @@
 import m from "mithril";
 
 export const Login = () => {
+  let email;
+  let password;
   return {
-    email: "",
-    password: "",
     view: (vnode) => {
       return m(
         "form",
@@ -19,7 +19,7 @@ export const Login = () => {
             type: "email",
             placeholder: "email",
             oninput: (e) => {
-              Login.email = e.target.value;
+              email = e.target.value;
             },
           }),
           m("label", "password"),
@@ -27,7 +27,7 @@ export const Login = () => {
             type: "password",
             placeholder: "password",
             oninput: (e) => {
-              Login.password = e.target.value;
+              password = e.target.value;
             },
           }),
           m("button", { type: "submit" }, "Log in"),

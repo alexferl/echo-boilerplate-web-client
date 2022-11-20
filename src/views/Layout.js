@@ -1,6 +1,6 @@
 import m from "mithril";
 
-const isLoggedIn = (user) => {
+const isLoggedIn = (user, actions) => {
   if (!user.isLoggedIn) {
     return m("div", { class: "navbar-end" }, [
       m(
@@ -37,10 +37,21 @@ const isLoggedIn = (user) => {
               m(
                 m.route.Link,
                 { class: "justify-between", href: "/profile" },
-                " Profile ",
+                "Profile",
               ),
             ),
-            m("li", m("a", "Logout")),
+            m(
+              "form",
+              {
+                onsubmit: (e) => {
+                  e.preventDefault();
+                  actions.logout();
+                  user.current = {};
+                  user.isLoggedIn = false;
+                },
+              },
+              m("li", m("button", { type: "submit" }, "Log out")),
+            ),
           ],
         ),
       ]),
@@ -50,9 +61,11 @@ const isLoggedIn = (user) => {
 
 export const Layout = () => {
   let user;
+  let actions;
   return {
     oninit: (vnode) => {
       user = vnode.attrs.state.user;
+      actions = vnode.attrs.actions;
     },
     view: (vnode) => {
       return m(
@@ -68,7 +81,7 @@ export const Layout = () => {
                 "logo",
               ),
             ),
-            isLoggedIn(user),
+            isLoggedIn(user, actions),
           ]),
         ],
         m("div", { class: "container mx-auto" }, vnode.children),
