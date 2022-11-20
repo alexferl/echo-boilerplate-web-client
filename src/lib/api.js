@@ -5,7 +5,6 @@ const base = "http://localhost:1323";
 export const API = () => {
   return {
     opts: {},
-    error: {},
     req: (method, path, data) => {
       const opts = {
         method: method,
@@ -32,7 +31,6 @@ export const API = () => {
           return API().refresh();
         }
         console.error("DO CATCH", JSON.stringify(e, null, 2));
-        API.error = e;
       }
     },
     refresh: async () => {
@@ -42,7 +40,6 @@ export const API = () => {
         return API().do(m.request(opts));
       } catch (e) {
         console.error("REFRESH CATCH", JSON.stringify(e, null, 2));
-        API.error = e;
       }
     },
     get: (path) => {

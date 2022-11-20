@@ -1,11 +1,14 @@
 import m from "mithril";
 import { App } from "./views/App";
 import { Layout } from "./views/Layout";
-import { Login } from "./views/login/Login";
-import { Signup } from "./views/signup/Signup";
+import { LogIn } from "./views/login/LogIn";
+import { SignUp } from "./views/signup/SignUp";
 import { User } from "./views/user/User";
-import { state, actions } from "./store";
+import { UserModel } from "./models/UserModel";
 import "./app.css";
+
+const State = () => ({ user: UserModel() });
+const state = State();
 
 const redirectLogin = () => {
   if (!state.user.isLoggedIn) m.route.set("/login");
@@ -21,25 +24,25 @@ m.route.prefix = "";
 m.route(document.body, "/", {
   "/": {
     render: () => {
-      return m(Layout, { state, actions }, m(App, { state, actions }));
+      return m(Layout, { state }, m(App, { state }));
     },
   },
   "/login": {
-    onmatch: redirectHome(Login),
+    onmatch: redirectHome(LogIn),
     render: () => {
-      return m(Login, { state, actions });
+      return m(LogIn, { state });
     },
   },
   "/signup": {
-    onmatch: redirectHome(Signup),
+    onmatch: redirectHome(SignUp),
     render: () => {
-      return m(Signup);
+      return m(SignUp, { state });
     },
   },
   "/profile": {
     onmatch: redirectLogin,
     render: () => {
-      return m(Layout, { state, actions }, m(User, { state, actions }));
+      return m(Layout, { state }, m(User, { state }));
     },
   },
 });

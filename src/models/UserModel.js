@@ -10,21 +10,22 @@ export const UserModel = () => {
         password: password,
       };
 
-      try {
-        await API().req("POST", "/auth/login", body);
-      } catch (e) {
-        console.error("LOGIN CATCH", JSON.stringify(e, null, 2));
-      }
+      return await API().req("POST", "/auth/login", body);
     },
     load: async () => {
-      try {
-        return await API().get("/user");
-      } catch (e) {
-        console.error("LOAD CATCH", JSON.stringify(e, null, 2));
-      }
+      return await API().get("/user");
     },
     logout: async () => {
       await API().post("/auth/logout");
+    },
+    signup: async (email, password, username) => {
+      const body = {
+        email: email,
+        password: password,
+        username: username,
+      };
+
+      return API().req("POST", "/auth/signup", body);
     },
   };
 };
