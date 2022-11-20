@@ -25,13 +25,13 @@ m.route(document.body, "/", {
     },
   },
   "/login": {
-    onmatch: redirectHome,
+    onmatch: redirectHome(Login),
     render: () => {
       return m(Login, { state, actions });
     },
   },
   "/signup": {
-    onmatch: redirectHome,
+    onmatch: redirectHome(Signup),
     render: () => {
       return m(Signup);
     },
