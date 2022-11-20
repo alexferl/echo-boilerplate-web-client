@@ -1,9 +1,12 @@
 import m from "mithril";
 
-export const App = (state, actions) => {
+export const App = () => {
+  let user;
   return {
+    oninit: (vnode) => {
+      user = vnode.attrs.state.user;
+    },
     view: () => {
-      console.log("APP", state.user);
       return m("main", [m("h1", "home")]);
     },
   };

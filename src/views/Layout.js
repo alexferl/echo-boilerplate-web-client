@@ -7,9 +7,9 @@ const derp = (user) => {
         m(
           "ul",
           { class: "menu menu-horizontal p-0" },
-          m("li", m("a", { href: "/login" }, "Log in")),
+          m("li", m(m.route.Link, { href: "/login" }, "Log in")),
         ),
-        m("a", { class: "btn", href: "/signup" }, "Sign up"),
+        m(m.route.Link, { class: "btn", href: "/signup" }, "Sign up"),
       ]),
     ];
   } else {
@@ -38,7 +38,7 @@ const derp = (user) => {
               m(
                 "li",
                 m(
-                  "a",
+                  m.route.Link,
                   { class: "justify-between", href: "/profile" },
                   " Profile ",
                 ),
@@ -52,10 +52,13 @@ const derp = (user) => {
   }
 };
 
-export const Layout = (state) => {
+export const Layout = () => {
+  let user;
   return {
+    oninit: (vnode) => {
+      user = vnode.attrs.state.user;
+    },
     view: (vnode) => {
-      console.log("LAYOUT", state.user);
       return m(
         "main.layout",
         [
@@ -64,12 +67,12 @@ export const Layout = (state) => {
               "div",
               { class: "flex-1" },
               m(
-                "a",
+                m.route.Link,
                 { class: "btn btn-ghost normal-case text-xl", href: "/" },
                 "daisyUI",
               ),
             ),
-            derp(state.user),
+            derp(user),
           ]),
         ],
         m("div", { class: "container mx-auto" }, vnode.children),

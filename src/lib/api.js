@@ -7,7 +7,6 @@ export const API = () => {
     opts: {},
     error: {},
     req: (method, path, data) => {
-      console.log("REQ", path);
       const opts = {
         method: method,
         url: `${base}${path}`,
@@ -28,11 +27,11 @@ export const API = () => {
       try {
         return await req;
       } catch (e) {
-        console.error("DO CATCH", JSON.stringify(e));
         // TODO: check message to handle different 401s
         if (e.code === 401) {
           return API().refresh();
         }
+        console.error("DO CATCH", JSON.stringify(e, null, 2));
         API.error = e;
       }
     },

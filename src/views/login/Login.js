@@ -1,17 +1,16 @@
 import m from "mithril";
 
-export const Login = (state, actions) => {
-  console.log("LOGIN", state.user);
+export const Login = () => {
   return {
     email: "",
     password: "",
-    view: () => {
+    view: (vnode) => {
       return m(
         "form",
         {
           onsubmit: (e) => {
             e.preventDefault();
-            state.user.login("admin@example.com", "changeme");
+            vnode.attrs.actions.login("admin@example.com", "changeme");
           },
         },
         [

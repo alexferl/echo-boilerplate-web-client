@@ -1,31 +1,45 @@
 import m from "mithril";
-import "./app.css";
 import { App } from "./views/App";
 import { Layout } from "./views/Layout";
 import { Login } from "./views/login/Login";
 import { Signup } from "./views/signup/Signup";
-import { UserModel } from "./models/UserModel";
+import { User } from "./views/user/User";
+import { state, actions } from "./store";
+import "./app.css";
 
-const mountNode = document.querySelector("#app");
+const redirectLogin = () => {
+  if (!state.user.isLoggedIn) m.route.set("/login");
+  else return App;
+};
 
-const State = () => ({ user: UserModel() });
-const Actions = (state) => ({});
-
-const state = State();
-const actions = Actions(state);
+const redirectHome = (component) => {
+  if (state.user.isLoggedIn) m.route.set("/");
+  else return component;
+};
 
 m.route.prefix = "";
-m.route(mountNode, "/", {
+m.route(document.body, "/", {
   "/": {
     render: () => {
-      return m(Layout(state), m(App(state, actions)));
+      return m(Layout, { state, actions }, m(App, { state, actions }));
     },
   },
-  "/login": Login(state, actions),
-  "/signup": Signup,
-  "/profile": {
+  "/login": {
+    onmatch: redirectHome,
     render: () => {
-      return m(Layout(state), m(App(state, actions)));
+      return m(Login, { state, actions });
+    },
+  },
+  "/signup": {
+    onmatch: redirectHome,
+    render: () => {
+      return m(Signup);
+    },
+  },
+  "/profile": {
+    onmatch: redirectLogin,
+    render: () => {
+      return m(Layout, { state, actions }, m(User, { state, actions }));
     },
   },
 });
