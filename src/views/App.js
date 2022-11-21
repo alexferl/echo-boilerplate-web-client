@@ -3,20 +3,16 @@ import m from "mithril";
 export const App = () => {
   return {
     view: (vnode) => {
-      m(
-        "div.hero.min-h-screen.bg-base-200",
-        m(
-          "div.hero-content.text-center",
-          m("div.max-w-md", [
-            m("h1.text-5xl.font-bold", "Hello there"),
+      let user = vnode.attrs.state.user;
+      return !user.isLoggedIn
+        ? m(
+            "div.hero.min-h-screen.bg-base-200",
             m(
-              "p.py-6",
-              "Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a id nisi.",
+              "div.hero-content.text-center",
+              m("div.max-w-md", [m("h1.text-5xl.font-bold", "Hello there")]),
             ),
-            m("button.btn.btn-primary", "Get Started"),
-          ]),
-        ),
-      );
+          )
+        : m("h1", `Hi ${user.current.username}`);
     },
   };
 };

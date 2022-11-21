@@ -10,6 +10,8 @@ const schema = {
 
 const form = powerform(schema);
 
+let error;
+
 const submit = async (e, user) => {
   e.preventDefault();
   if (!form.validate()) {
@@ -20,25 +22,42 @@ const submit = async (e, user) => {
     await user.login(form.email.getData(), form.password.getData());
   } catch (e) {
     console.log("E", JSON.stringify(e, null, 2));
+    if (e.code === 401) {
+      error = "Incorrect email or password.";
+    }
     return;
   }
 
   user.current = await user.load();
   user.isLoggedIn = true;
 
-  form.reset(); // reset form or else it stays valid
-
   m.route.set("/");
 };
 
 export const LogIn = () => {
   return {
+    oninit: () => {
+      form.reset();
+      error = null;
+    },
     view: (vnode) => {
-      let user = vnode.attrs.state.user;
       return m(
         "div.flex.justify-center.items-center.h-screen",
-        m(
-          "div.card.flex-shrink-0.w-full.max-w-sm.shadow-2xl.bg-base-100",
+        m("div.card.flex-shrink-0.w-full.max-w-sm.shadow-2xl.bg-base-100", [
+          error
+            ? m(
+                "div.alert.alert-error.shadow-lg",
+                m("div", [
+                  m(
+                    "svg.stroke-current.flex-shrink-0.h-6.w-6[xmlns='http://www.w3.org/2000/svg'][fill='none'][viewBox='0 0 24 24']",
+                    m(
+                      "path[stroke-linecap='round'][stroke-linejoin='round'][stroke-width='2'][d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z']",
+                    ),
+                  ),
+                  m("span", error),
+                ]),
+              )
+            : null,
           m("div.card-body", [
             m(
               "form",
@@ -47,9 +66,13 @@ export const LogIn = () => {
               },
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Email")),
-                m("input.input.input-bordered[type=email]", {
+                m("input", {
+                  class: form.email.getError()
+                    ? "input input-bordered input-error"
+                    : "input input-bordered",
                   oninput: (e) => form.email.setData(e.target.value),
                   onkeyup: (e) => timer(e, () => form.email.validate(), 500),
+                  onchange: () => form.email.validate(),
                 }),
                 m(
                   "label.label",
@@ -61,7 +84,10 @@ export const LogIn = () => {
               ]),
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Password")),
-                m("input.input.input-bordered[type=text]", {
+                m("input.input.input-bordered[type=password]", {
+                  class: form.password.getError()
+                    ? "input input-bordered input-error"
+                    : "input input-bordered",
                   oninput: (e) => form.password.setData(e.target.value),
                   onkeyup: (e) => timer(e, () => form.password.validate(), 500),
                 }),
@@ -81,10 +107,19 @@ export const LogIn = () => {
                   ),
                 ),
               ]),
-              m("div.form-control.mt-6", m("button.btn.btn-primary", "Log in")),
+              m(
+                "div.form-control.mt-6",
+                m(
+                  "button.btn.btn-primary",
+                  {
+                    disabled: form.isValid() ? null : "disabled",
+                  },
+                  "Log in",
+                ),
+              ),
             ),
           ]),
-        ),
+        ]),
       );
     },
   };

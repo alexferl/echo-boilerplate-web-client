@@ -20,6 +20,8 @@ const schema = {
 
 const form = powerform(schema);
 
+let error;
+
 const submit = async (e, user) => {
   e.preventDefault();
   if (!form.validate()) {
@@ -35,19 +37,23 @@ const submit = async (e, user) => {
     await user.login(form.email.getData(), form.password.getData());
   } catch (e) {
     console.log("E", JSON.stringify(e, null, 2));
+    if (e.code === 409) {
+      error = "Email is already taken.";
+    }
     return;
   }
 
   user.current = await user.load();
   user.isLoggedIn = true;
 
-  form.reset(); // reset form or else it stays valid
-
   m.route.set("/");
 };
 
 export const SignUp = () => {
   return {
+    oninit: () => {
+      form.reset();
+    },
     view: (vnode) => {
       return m(
         "div.flex.justify-center.items-center.h-screen",
@@ -62,7 +68,7 @@ export const SignUp = () => {
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Email")),
                 m("input", {
-                  className: form.email.getError()
+                  class: form.email.getError()
                     ? "input input-bordered input-error"
                     : form.email.isValid()
                     ? "input input input-bordered input-success"
@@ -70,6 +76,7 @@ export const SignUp = () => {
                   type: "email",
                   oninput: (e) => form.email.setData(e.target.value),
                   onkeyup: (e) => timer(e, () => form.email.validate(), 500),
+                  onchange: () => form.email.validate(),
                 }),
                 m(
                   "label.label",
@@ -82,7 +89,7 @@ export const SignUp = () => {
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Password")),
                 m("input", {
-                  className: form.password.getError()
+                  class: form.password.getError()
                     ? "input input-bordered input-error"
                     : form.password.isValid()
                     ? "input input input-bordered input-success"
@@ -90,6 +97,7 @@ export const SignUp = () => {
                   type: "password",
                   oninput: (e) => form.password.setData(e.target.value),
                   onkeyup: (e) => timer(e, () => form.password.validate(), 500),
+                  onchange: () => form.password.validate(),
                 }),
                 m(
                   "label.label",
@@ -102,7 +110,7 @@ export const SignUp = () => {
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Username")),
                 m("input", {
-                  className: form.username.getError()
+                  class: form.username.getError()
                     ? "input input-bordered input-error"
                     : form.username.isValid()
                     ? "input input input-bordered input-success"
@@ -110,6 +118,7 @@ export const SignUp = () => {
                   type: "text",
                   oninput: (e) => form.username.setData(e.target.value),
                   onkeyup: (e) => timer(e, () => form.username.validate(), 500),
+                  onchange: () => form.username.validate(),
                 }),
                 m(
                   "label.label",
@@ -119,7 +128,14 @@ export const SignUp = () => {
                   ),
                 ),
               ]),
-              m("div.form-control.mt-6", m("button.btn.btn-primary", "Create")),
+              m(
+                "div.form-control.mt-6",
+                m(
+                  "button.btn.btn-primary",
+                  { disabled: !form.isValid() ? "disabled" : null },
+                  "Create",
+                ),
+              ),
             ),
           ]),
         ),
