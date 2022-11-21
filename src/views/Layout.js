@@ -3,10 +3,13 @@ import Cookies from "js-cookie";
 
 const onSubmit = async (e, user) => {
   e.preventDefault();
+
   await user.logout();
+
   Cookies.remove("access_token");
   user.current = {};
   user.isLoggedIn = false;
+
   m.route.set("/");
 };
 
@@ -58,13 +61,10 @@ const isLoggedIn = (user) => {
 };
 
 export const Layout = () => {
-  let user;
   return {
-    oninit: (vnode) => {
-      user = vnode.attrs.state.user;
-    },
-    view: (vnode) =>
-      m(
+    view: (vnode) => {
+      let user = vnode.attrs.state.user;
+      return m(
         "main.layout",
         [
           m("div.navbar.bg-base-100", [
@@ -80,6 +80,7 @@ export const Layout = () => {
           ]),
         ],
         m("div.container.mx-auto", vnode.children),
-      ),
+      );
+    },
   };
 };

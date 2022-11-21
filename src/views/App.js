@@ -1,13 +1,8 @@
 import m from "mithril";
 
 export const App = () => {
-  console.log("APP");
-  let user;
   return {
-    oninit: (vnode) => {
-      user = vnode.attrs.state.user;
-    },
-    view: () => {
+    view: (vnode) => {
       m(
         "div.hero.min-h-screen.bg-base-200",
         m(

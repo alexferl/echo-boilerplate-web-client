@@ -1,13 +1,10 @@
 import m from "mithril";
 
 export const User = () => {
-  let user;
   return {
-    oninit: (vnode) => {
-      user = vnode.attrs.state.user;
-    },
-    view: () =>
-      user.current
+    view: (vnode) => {
+      let user = vnode.attrs.state.user;
+      return user.current
         ? m("main", [
             m("h1", "Profile"),
             m("p", user.current.username),
@@ -16,6 +13,7 @@ export const User = () => {
             m("p", user.current.bio),
             m("p", user.current.created_at),
           ])
-        : m("h1", "Loading"),
+        : m("h1", "Loading");
+    },
   };
 };
