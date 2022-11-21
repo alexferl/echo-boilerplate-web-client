@@ -1,99 +1,48 @@
 import m from "mithril";
+import { powerform } from "powerform";
+import { required, minLength, maxLength, isEmail } from "validatex";
 
-let Input = {
-  name: "",
-  type: "",
-  error: "",
-  value: "",
-  validate: () => {
-    Input.error = !Input.value
-      ? `Please enter ${Input.name.toLowerCase()}`
-      : "";
-  },
-  isValid: () => {
-    return !Input.error;
-  },
-  view: (vnode) => {
-    console.log("VNODE", vnode.attrs);
-    Input.name = vnode.attrs.name;
-    Input.type = vnode.attrs.type;
-    return [
-      m("div.form-control", [
-        m("label.label", m("span.label-text", Input.name)),
-        m("input", {
-          className: Input.error
-            ? "input input-bordered input-error"
-            : "input input input-bordered",
-          value: Input.value,
-          type: Input.type,
-          oninput: (e) => {
-            Input.value = e.target.value;
-            Input.error && Input.validate();
-          },
-        }),
-      ]),
-      Input.error &&
-        m(
-          "label.label",
-          m("span.label-text[style=color:hsl(var(--er))]", Input.error),
-        ),
-    ];
-  },
+export function isValidUsername(val) {
+  const m = `
+  Username may only contain alphanumeric characters
+  or single hyphens, underscores or dots and
+  cannot begin or end with a hyphen, underscore or dot.
+  `;
+  return !/^[a-zA-Z0-9]+(?:[-._][a-zA-Z0-9]+)*$/.test(val) && m;
+}
+
+const schema = {
+  email: [required(true), isEmail("Invalid email address.")],
+  password: [required(true), minLength(12)],
+  username: [required(true), isValidUsername, minLength(2), maxLength(30)],
 };
 
-let Input2 = {
-  name: "",
-  type: "",
-  error: "",
-  value: "",
-  validate: () => {
-    Input2.error = !Input2.value
-      ? `Please enter ${Input2.name.toLowerCase()}`
-      : "";
-  },
-  isValid: () => {
-    return !Input2.error;
-  },
-  view: (vnode) => {
-    console.log("VNODE", vnode.attrs);
-    Input2.name = vnode.attrs.name;
-    Input2.type = vnode.attrs.type;
-    return [
-      m("div.form-control", [
-        m("label.label", m("span.label-text", Input2.name)),
-        m("input", {
-          className: Input2.error
-            ? "input input-bordered input-error"
-            : "input input input-bordered",
-          value: Input2.value,
-          type: Input2.type,
-          oninput: (e) => {
-            Input2.value = e.target.value;
-            Input2.error && Input2.validate();
-          },
-        }),
-      ]),
-      Input2.error &&
-        m(
-          "label.label",
-          m("span.label-text[style=color:hsl(var(--er))]", Input2.error),
-        ),
-    ];
-  },
+const form = powerform(schema);
+
+const submit = async (e, user) => {
+  e.preventDefault();
+  if (!form.validate()) {
+    return;
+  }
+  try {
+    await user.signup(
+      form.email.getData(),
+      form.password.getData(),
+      form.username.getData(),
+    );
+  } catch (e) {
+    console.log("E", JSON.stringify(e, null, 2));
+    return;
+  }
+  user.current = await user.load();
+  user.isLoggedIn = true;
+  m.route.set("/");
 };
 
 export const SignUp = () => {
-  let email, password, username;
-  const passwordInput = Input;
-  const usernameInput = Input;
   return {
-    isValid: () => {
-      passwordInput.validate();
-      usernameInput.validate();
-      return !!(passwordInput.isValid() && usernameInput.isValid());
-    },
-    view: (vnode) =>
-      m(
+    view: (vnode) => {
+      return m(
         "div.flex.justify-center.items-center.h-screen",
         m(
           "div.card.flex-shrink-0.w-full.max-w-sm.shadow-2xl.bg-base-100",
@@ -102,46 +51,68 @@ export const SignUp = () => {
               "form",
               {
                 onsubmit: async (e) => {
-                  const user = vnode.attrs.state.user;
-                  e.preventDefault();
-                  try {
-                    await user.signup(email, password, username);
-                  } catch (e) {
-                    console.log("E", JSON.stringify(e, null, 2));
-                    return;
-                  }
-                  user.current = await user.load();
-                  user.isLoggedIn = true;
-                  m.route.set("/");
+                  await submit(e, vnode.attrs.state.user);
                 },
               },
               m("div.form-control", [
                 m("label.label", m("span.label-text", "Email")),
-                m("input.input.input-bordered[type=email]", {
-                  oninput: (e) => {
-                    email = e.target.value;
-                  },
+                m("input", {
+                  className: form.email.getError()
+                    ? "input input-bordered input-error"
+                    : "input input input-bordered",
+                  type: "email",
+                  oninput: (e) => form.email.setData(e.target.value),
+                  onchange: () => form.email.validate(),
                 }),
-              ]),
-              m(passwordInput, { name: "Password", type: "password" }),
-              m(usernameInput, { name: "Username", type: "text" }),
-              m(
-                "div.form-control.mt-6",
                 m(
-                  "button.btn.btn-primary",
-                  {
-                    onclick() {
-                      if (SignUp().isValid()) {
-                        m.route.set("/dashboard");
-                      }
-                    },
-                  },
-                  "Create",
+                  "label.label",
+                  m(
+                    "span.label-text[style=color:hsl(var(--er))]",
+                    form.email.getError(),
+                  ),
                 ),
-              ),
+              ]),
+              m("div.form-control", [
+                m("label.label", m("span.label-text", "Password")),
+                m("input", {
+                  className: form.password.getError()
+                    ? "input input-bordered input-error"
+                    : "input input input-bordered",
+                  type: "password",
+                  oninput: (e) => form.password.setData(e.target.value),
+                  onchange: () => form.password.validate(),
+                }),
+                m(
+                  "label.label",
+                  m(
+                    "span.label-text[style=color:hsl(var(--er))]",
+                    form.password.getError(),
+                  ),
+                ),
+              ]),
+              m("div.form-control", [
+                m("label.label", m("span.label-text", "Username")),
+                m("input", {
+                  className: form.username.getError()
+                    ? "input input-bordered input-error"
+                    : "input input input-bordered",
+                  type: "text",
+                  oninput: (e) => form.username.setData(e.target.value),
+                  onchange: () => form.username.validate(),
+                }),
+                m(
+                  "label.label",
+                  m(
+                    "span.label-text[style=color:hsl(var(--er))]",
+                    form.username.getError(),
+                  ),
+                ),
+              ]),
+              m("div.form-control.mt-6", m("button.btn.btn-primary", "Create")),
             ),
           ]),
         ),
-      ),
+      );
+    },
   };
 };
