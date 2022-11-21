@@ -49,97 +49,95 @@ const submit = async (e, user) => {
   m.route.set("/");
 };
 
-export const SignUp = () => {
-  return {
-    oninit: () => {
-      form.reset();
-    },
-    view: (vnode) => {
-      return m(
-        "div.flex.justify-center.items-center.h-screen",
-        m(
-          "div.card.flex-shrink-0.w-full.max-w-sm.shadow-2xl.bg-base-100",
-          m("div.card-body", [
-            m(
-              "form",
-              {
-                onsubmit: async (e) => await submit(e, vnode.attrs.state.user),
-              },
-              m("div.form-control", [
-                m("label.label", m("span.label-text", "Email")),
-                m("input", {
-                  class: form.email.getError()
-                    ? "input input-bordered input-error"
-                    : form.email.isValid()
-                    ? "input input input-bordered input-success"
-                    : "input input-bordered",
-                  type: "email",
-                  oninput: (e) => form.email.setData(e.target.value),
-                  onkeyup: (e) => timer(e, () => form.email.validate(), 500),
-                  onchange: () => form.email.validate(),
-                }),
-                m(
-                  "label.label",
-                  m(
-                    "span.label-text[style=color:hsl(var(--er))]",
-                    form.email.getError(),
-                  ),
-                ),
-              ]),
-              m("div.form-control", [
-                m("label.label", m("span.label-text", "Password")),
-                m("input", {
-                  class: form.password.getError()
-                    ? "input input-bordered input-error"
-                    : form.password.isValid()
-                    ? "input input input-bordered input-success"
-                    : "input input-bordered",
-                  type: "password",
-                  oninput: (e) => form.password.setData(e.target.value),
-                  onkeyup: (e) => timer(e, () => form.password.validate(), 500),
-                  onchange: () => form.password.validate(),
-                }),
-                m(
-                  "label.label",
-                  m(
-                    "span.label-text[style=color:hsl(var(--er))]",
-                    form.password.getError(),
-                  ),
-                ),
-              ]),
-              m("div.form-control", [
-                m("label.label", m("span.label-text", "Username")),
-                m("input", {
-                  class: form.username.getError()
-                    ? "input input-bordered input-error"
-                    : form.username.isValid()
-                    ? "input input input-bordered input-success"
-                    : "input input-bordered",
-                  type: "text",
-                  oninput: (e) => form.username.setData(e.target.value),
-                  onkeyup: (e) => timer(e, () => form.username.validate(), 500),
-                  onchange: () => form.username.validate(),
-                }),
-                m(
-                  "label.label",
-                  m(
-                    "span.label-text[style=color:hsl(var(--er))]",
-                    form.username.getError(),
-                  ),
-                ),
-              ]),
+export const SignUp = () => ({
+  oninit: () => {
+    form.reset();
+  },
+
+  view: ({ attrs }) =>
+    m(
+      "div.flex.justify-center.items-center.h-screen",
+      m(
+        "div.card.flex-shrink-0.w-full.max-w-sm.shadow-2xl.bg-base-100",
+        m("div.card-body", [
+          m(
+            "form",
+            {
+              onsubmit: async (e) => await submit(e, attrs.state.user),
+            },
+            m("div.form-control", [
+              m("label.label", m("span.label-text", "Email")),
+              m("input", {
+                class: form.email.getError()
+                  ? "input input-bordered input-error"
+                  : form.email.isValid()
+                  ? "input input input-bordered input-success"
+                  : "input input-bordered",
+                type: "email",
+                oninput: ({ target }) => form.email.setData(target.value),
+                onkeyup: (e) => timer(e, () => form.email.validate(), 500),
+                onchange: () => form.email.validate(),
+              }),
               m(
-                "div.form-control.mt-6",
+                "label.label",
                 m(
-                  "button.btn.btn-primary",
-                  { disabled: !form.isValid() ? "disabled" : null },
-                  "Create",
+                  "span.label-text[style=color:hsl(var(--er))]",
+                  form.email.getError(),
                 ),
               ),
+            ]),
+            m("div.form-control", [
+              m("label.label", m("span.label-text", "Password")),
+              m("input", {
+                class: form.password.getError()
+                  ? "input input-bordered input-error"
+                  : form.password.isValid()
+                  ? "input input input-bordered input-success"
+                  : "input input-bordered",
+                type: "password",
+                oninput: ({ target }) => form.password.setData(target.value),
+                onkeyup: (e) => timer(e, () => form.password.validate(), 500),
+                onchange: () => form.password.validate(),
+              }),
+              m(
+                "label.label",
+                m(
+                  "span.label-text[style=color:hsl(var(--er))]",
+                  form.password.getError(),
+                ),
+              ),
+            ]),
+            m("div.form-control", [
+              m("label.label", m("span.label-text", "Username")),
+              m("input", {
+                class: form.username.getError()
+                  ? "input input-bordered input-error"
+                  : form.username.isValid()
+                  ? "input input input-bordered input-success"
+                  : "input input-bordered",
+                type: "text",
+                oninput: ({ target }) => form.username.setData(target.value),
+                onkeyup: (e) => timer(e, () => form.username.validate(), 500),
+                onchange: () => form.username.validate(),
+              }),
+              m(
+                "label.label",
+                m(
+                  "span.label-text[style=color:hsl(var(--er))]",
+                  form.username.getError(),
+                ),
+              ),
+            ]),
+            m(
+              "div.form-control.mt-6",
+              m(
+                "button.btn.btn-primary",
+                { disabled: !form.isValid() ? "disabled" : null },
+                "Create",
+              ),
             ),
-          ]),
-        ),
-      );
-    },
-  };
-};
+          ),
+        ]),
+      ),
+    ),
+});

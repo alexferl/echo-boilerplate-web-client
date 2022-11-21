@@ -1,8 +1,8 @@
 import m from "mithril";
 
-export const timer = (function () {
+export const timer = (() => {
   let timeout = 0;
-  return function (e, callback, ms) {
+  return (e, callback, ms) => {
     e.redraw = false;
     clearTimeout(timeout);
     timeout = setTimeout(() => {

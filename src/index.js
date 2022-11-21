@@ -23,26 +23,18 @@ const redirectHome = (component) => {
 m.route.prefix = "";
 m.route(document.body, "/", {
   "/": {
-    render: () => {
-      return m(Layout, { state }, m(App, { state }));
-    },
+    render: () => m(Layout, { state }, m(App, { state })),
   },
   "/login": {
     onmatch: redirectHome(LogIn),
-    render: () => {
-      return m(LogIn, { state });
-    },
+    render: () => m(LogIn, { state }),
   },
   "/signup": {
     onmatch: redirectHome(SignUp),
-    render: () => {
-      return m(SignUp, { state });
-    },
+    render: () => m(SignUp, { state }),
   },
   "/profile": {
     onmatch: redirectLogin,
-    render: () => {
-      return m(Layout, { state }, m(User, { state }));
-    },
+    render: () => m(Layout, { state }, m(User, { state })),
   },
 });

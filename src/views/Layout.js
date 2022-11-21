@@ -60,27 +60,25 @@ const isLoggedIn = (user) => {
   }
 };
 
-export const Layout = () => {
-  return {
-    view: (vnode) => {
-      let user = vnode.attrs.state.user;
-      return m(
-        "main.layout",
-        [
-          m("div.navbar.bg-base-100", [
+export const Layout = () => ({
+  view: ({ attrs, children }) => {
+    let user = attrs.state.user;
+    return m(
+      "main.layout",
+      [
+        m("div.navbar.bg-base-100", [
+          m(
+            "div.flex-1",
             m(
-              "div.flex-1",
-              m(
-                m.route.Link,
-                { class: "btn btn-ghost normal-case text-xl", href: "/" },
-                "logo",
-              ),
+              m.route.Link,
+              { class: "btn btn-ghost normal-case text-xl", href: "/" },
+              "logo",
             ),
-            isLoggedIn(user),
-          ]),
-        ],
-        m("div.container.mx-auto", vnode.children),
-      );
-    },
-  };
-};
+          ),
+          isLoggedIn(user),
+        ]),
+      ],
+      m("div.container.mx-auto", children),
+    );
+  },
+});
