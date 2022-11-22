@@ -13,11 +13,12 @@ export const UserModel = () => ({
     return await API().req("POST", "/auth/login", body);
   },
 
-  load: async () => await API().get("/user"),
+  getAuthenticated: async () => await API().get("/user"),
 
-  logout: async () => {
-    await API().post("/auth/logout");
-  },
+  checkUserExist: async (username) =>
+    await API().req("GET", `/users/${username}`),
+
+  logout: async () => await API().post("/auth/logout"),
 
   signup: async (email, password, username) => {
     const body = {

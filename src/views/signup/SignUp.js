@@ -1,7 +1,7 @@
 import m from "mithril";
 import { powerform } from "powerform";
 import { required, minLength, maxLength, isEmail } from "validatex";
-import { timer } from "../../lib/timer";
+import { timerRedraw, timer } from "../../lib/timer";
 
 export function isValidUsername(val) {
   const m = `
@@ -20,7 +20,8 @@ const schema = {
 
 const form = powerform(schema);
 
-let error;
+let emailError;
+let usernameError;
 
 const submit = async (e, user) => {
   e.preventDefault();
@@ -36,17 +37,31 @@ const submit = async (e, user) => {
     );
     await user.login(form.email.getData(), form.password.getData());
   } catch (e) {
-    console.log("E", JSON.stringify(e, null, 2));
     if (e.code === 409) {
-      error = "Email is already taken.";
+      emailError = "Email is already taken.";
     }
     return;
   }
 
-  user.current = await user.load();
+  user.current = await user.getAuthenticated();
   user.isLoggedIn = true;
 
   m.route.set("/");
+};
+
+const checkUser = async (user) => {
+  if (form.username.isValid()) {
+    try {
+      const resp = await user.checkUserExist(form.username.getData());
+      if (resp !== undefined) {
+        usernameError = "Username is already taken.";
+      }
+    } catch (e) {
+      if (e.code === 404) {
+        usernameError = null;
+      }
+    }
+  }
 };
 
 export const SignUp = () => ({
@@ -68,21 +83,26 @@ export const SignUp = () => ({
             m("div.form-control", [
               m("label.label", m("span.label-text", "Email")),
               m("input", {
-                class: form.email.getError()
-                  ? "input input-bordered input-error"
-                  : form.email.isValid()
-                  ? "input input input-bordered input-success"
-                  : "input input-bordered",
+                class:
+                  form.email.getError() || emailError
+                    ? "input input-bordered input-error"
+                    : form.email.isValid()
+                    ? "input input input-bordered input-success"
+                    : "input input-bordered",
                 type: "email",
-                oninput: ({ target }) => form.email.setData(target.value),
-                onkeyup: (e) => timer(e, () => form.email.validate(), 500),
+                oninput: ({ target }) => {
+                  form.email.setData(target.value);
+                  emailError = null;
+                },
+                onkeyup: (e) =>
+                  timerRedraw(e, () => form.email.validate(), 500),
                 onchange: () => form.email.validate(),
               }),
               m(
                 "label.label",
                 m(
                   "span.label-text[style=color:hsl(var(--er))]",
-                  form.email.getError(),
+                  form.email.getError() || emailError,
                 ),
               ),
             ]),
@@ -96,7 +116,8 @@ export const SignUp = () => ({
                   : "input input-bordered",
                 type: "password",
                 oninput: ({ target }) => form.password.setData(target.value),
-                onkeyup: (e) => timer(e, () => form.password.validate(), 500),
+                onkeyup: (e) =>
+                  timerRedraw(e, () => form.password.validate(), 500),
                 onchange: () => form.password.validate(),
               }),
               m(
@@ -110,21 +131,25 @@ export const SignUp = () => ({
             m("div.form-control", [
               m("label.label", m("span.label-text", "Username")),
               m("input", {
-                class: form.username.getError()
-                  ? "input input-bordered input-error"
-                  : form.username.isValid()
-                  ? "input input input-bordered input-success"
-                  : "input input-bordered",
+                class:
+                  form.username.getError() || usernameError
+                    ? "input input-bordered input-error"
+                    : form.username.isValid()
+                    ? "input input input-bordered input-success"
+                    : "input input-bordered",
                 type: "text",
                 oninput: ({ target }) => form.username.setData(target.value),
-                onkeyup: (e) => timer(e, () => form.username.validate(), 500),
+                onkeyup: (e) => {
+                  timerRedraw(e, () => form.username.validate(), 500);
+                  timer(() => checkUser(attrs.state.user), 500);
+                },
                 onchange: () => form.username.validate(),
               }),
               m(
                 "label.label",
                 m(
                   "span.label-text[style=color:hsl(var(--er))]",
-                  form.username.getError(),
+                  form.username.getError() || usernameError,
                 ),
               ),
             ]),

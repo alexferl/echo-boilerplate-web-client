@@ -1,7 +1,7 @@
 import m from "mithril";
 import { powerform } from "powerform";
 import { isEmail, required } from "validatex";
-import { timer } from "../../lib/timer";
+import { timerRedraw } from "../../lib/timer";
 
 const schema = {
   email: [required(true), isEmail("Invalid email address.")],
@@ -28,7 +28,7 @@ const submit = async (e, user) => {
     return;
   }
 
-  user.current = await user.load();
+  user.current = await user.getAuthenticated();
   user.isLoggedIn = true;
 
   m.route.set("/");
@@ -71,7 +71,8 @@ export const LogIn = () => ({
                   ? "input input-bordered input-error"
                   : "input input-bordered",
                 oninput: ({ target }) => form.email.setData(target.value),
-                onkeyup: (e) => timer(e, () => form.email.validate(), 500),
+                onkeyup: (e) =>
+                  timerRedraw(e, () => form.email.validate(), 500),
                 onchange: () => form.email.validate(),
               }),
               m(
@@ -89,7 +90,8 @@ export const LogIn = () => ({
                   ? "input input-bordered input-error"
                   : "input input-bordered",
                 oninput: ({ target }) => form.password.setData(target.value),
-                onkeyup: (e) => timer(e, () => form.password.validate(), 500),
+                onkeyup: (e) =>
+                  timerRedraw(e, () => form.password.validate(), 500),
               }),
               m(
                 "label.label",

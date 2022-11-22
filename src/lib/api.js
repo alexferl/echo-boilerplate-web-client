@@ -1,4 +1,5 @@
 import m from "mithril";
+import Cookie from "js-cookie";
 
 const base = "http://localhost:1323";
 
@@ -12,6 +13,16 @@ export const API = () => ({
       headers: {},
       withCredentials: true,
     };
+
+    // Send token only for requests which are not defined as 'safe' by RFC7231.
+    switch (method) {
+      case "GET":
+      case "HEAD":
+      case "OPTIONS":
+      case "TRACE":
+      default:
+        opts.headers["X-CSRF-Token"] = Cookie.get("csrf_token");
+    }
 
     if (data) {
       opts.headers["Content-Type"] = "application/json";
