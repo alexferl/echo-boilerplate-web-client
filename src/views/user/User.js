@@ -2,15 +2,15 @@ import m from "mithril";
 
 export const User = () => ({
   view: ({ attrs }) => {
-    let user = attrs.state.user;
-    return user.current
+    let user = attrs.actions.getCurrentUser();
+    return user
       ? m("main", [
           m("h1", "Profile"),
-          m("p", user.current.username),
-          m("p", user.current.email),
-          m("p", user.current.name),
-          m("p", user.current.bio),
-          m("p", user.current.created_at),
+          m("p", user.username),
+          m("p", user.email),
+          m("p", user.name),
+          m("p", user.bio),
+          m("p", user.created_at),
         ])
       : m("h1", "Loading");
   },

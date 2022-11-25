@@ -1,20 +1,13 @@
 import m from "mithril";
-import Cookies from "js-cookie";
 
-const onSubmit = async (e, user) => {
+const onSubmit = async (e, actions) => {
   e.preventDefault();
-
-  await user.logout();
-
-  Cookies.remove("access_token");
-  user.current = {};
-  user.isLoggedIn = false;
-
+  await actions.logout();
   m.route.set("/");
 };
 
-const isLoggedIn = (user) => {
-  if (!user.isLoggedIn) {
+const isLoggedIn = (actions) => {
+  if (!actions.isLoggedIn()) {
     return m("div.navbar-end", [
       m(
         "ul.menu.menu-horizontal.p-0",
@@ -48,7 +41,7 @@ const isLoggedIn = (user) => {
               "form",
               {
                 onsubmit: async (e) => {
-                  await onSubmit(e, user);
+                  await onSubmit(e, actions);
                 },
               },
               m("li", m("button[type=submit]", "Log out")),
@@ -61,9 +54,8 @@ const isLoggedIn = (user) => {
 };
 
 export const Layout = () => ({
-  view: ({ attrs, children }) => {
-    let user = attrs.state.user;
-    return m(
+  view: ({ attrs, children }) =>
+    m(
       "main.layout",
       [
         m("div.navbar.bg-base-100", [
@@ -75,10 +67,9 @@ export const Layout = () => ({
               "logo",
             ),
           ),
-          isLoggedIn(user),
+          isLoggedIn(attrs.actions),
         ]),
       ],
       m("div.container.mx-auto", children),
-    );
-  },
+    ),
 });

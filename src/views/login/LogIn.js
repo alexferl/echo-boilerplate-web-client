@@ -12,14 +12,14 @@ const form = powerform(schema);
 
 let error;
 
-const submit = async (e, user) => {
+const submit = async (e, actions) => {
   e.preventDefault();
   if (!form.validate()) {
     return;
   }
 
   try {
-    await user.login(form.email.getData(), form.password.getData());
+    await actions.login(form.email.getData(), form.password.getData());
   } catch (e) {
     console.log("E", JSON.stringify(e, null, 2));
     if (e.code === 401) {
@@ -27,9 +27,6 @@ const submit = async (e, user) => {
     }
     return;
   }
-
-  user.current = await user.getAuthenticated();
-  user.isLoggedIn = true;
 
   m.route.set("/");
 };
@@ -62,7 +59,7 @@ export const LogIn = () => ({
           m(
             "form",
             {
-              onsubmit: async (e) => await submit(e, attrs.state.user),
+              onsubmit: async (e) => await submit(e, attrs.actions),
             },
             m("div.form-control", [
               m("label.label", m("span.label-text", "Email")),

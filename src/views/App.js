@@ -2,8 +2,9 @@ import m from "mithril";
 
 export const App = () => ({
   view: ({ attrs }) => {
-    let user = attrs.state.user;
-    return !user.isLoggedIn
+    const actions = attrs.actions;
+    let user = attrs.actions.getCurrentUser();
+    return !actions.isLoggedIn()
       ? m(
           "div.hero.min-h-screen.bg-base-200",
           m(
@@ -11,6 +12,6 @@ export const App = () => ({
             m("div.max-w-md", [m("h1.text-5xl.font-bold", "Hello there")]),
           ),
         )
-      : m("h1", `Hi ${user.current.username}`);
+      : m("h1", `Hi ${user.username}`);
   },
 });

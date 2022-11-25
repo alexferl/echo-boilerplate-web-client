@@ -23,28 +23,24 @@ const form = powerform(schema);
 let emailError;
 let usernameError;
 
-const submit = async (e, user) => {
+const onSubmit = async (e, actions) => {
   e.preventDefault();
   if (!form.validate()) {
     return;
   }
 
   try {
-    await user.signup(
+    await actions.signup(
       form.email.getData(),
       form.password.getData(),
       form.username.getData(),
     );
-    await user.login(form.email.getData(), form.password.getData());
   } catch (e) {
     if (e.code === 409) {
       emailError = "Email is already taken.";
     }
     return;
   }
-
-  user.current = await user.getAuthenticated();
-  user.isLoggedIn = true;
 
   m.route.set("/");
 };
@@ -78,7 +74,7 @@ export const SignUp = () => ({
           m(
             "form",
             {
-              onsubmit: async (e) => await submit(e, attrs.state.user),
+              onsubmit: async (e) => await onSubmit(e, attrs.actions),
             },
             m("div.form-control", [
               m("label.label", m("span.label-text", "Email")),
